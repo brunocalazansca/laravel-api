@@ -9,7 +9,10 @@ services:
         volumes:
             - ./:/var/www
         depends_on:
-            - redis
+            db:
+                condition: service_healthy
+            redis:
+                condition: service_started
         networks:
             - laravel
 
@@ -25,34 +28,34 @@ services:
         networks:
             - laravel
 
-    # db mysql
+    # db postgres
     db:
-        image: mysql:8.0
-        platform: linux/x86_64
+        image: postgres:16
         restart: unless-stopped
         environment:
-            MYSQL_DATABASE: ${DB_DATABASE:-laravel}
-            MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-root}
-            MYSQL_PASSWORD: ${DB_PASSWORD:-userpass}
-            MYSQL_USER: ${DB_USERNAME:-username}
+            POSTGRES_DB: ${DB_DATABASE:-laravel}
+            POSTGRES_USER: ${DB_USERNAME:-username}
+            POSTGRES_PASSWORD: ${DB_PASSWORD:-userpass}
         volumes:
-            - ./.docker/mysql/dbdata:/var/lib/mysql
+            - ./.docker/postgres/dbdata:/var/lib/postgresql/data
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-username} -d ${DB_DATABASE:-laravel}"]
+            interval: 5s
+            retries: 10
         ports:
-            - "3300:3306"
+            - "5432:5432"
         networks:
             - laravel
 
-    # PHPMyAdmin
-    phpmyadmin:
-        image: phpmyadmin/phpmyadmin
-        platform: linux/x86_64
+    # pgAdmin
+    pgadmin:
+        image: dpage/pgadmin4
         restart: unless-stopped
         ports:
             - "8080:80"
         environment:
-            PMA_HOST: db
-            PMA_PORT: 3306
-            MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-root}
+            PGADMIN_DEFAULT_EMAIL: admin@admin.com
+            PGADMIN_DEFAULT_PASSWORD: ${DB_PASSWORD:-userpass}
         networks:
             - laravel
 

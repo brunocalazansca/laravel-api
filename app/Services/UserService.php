@@ -14,4 +14,8 @@ class UserService
 
         return $this->userRepository->create($dados);
     }
+
+    public function getAll() {
+        return $this->userRepository->all();
+    }
 }

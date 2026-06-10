@@ -15,4 +15,10 @@ class UserController extends Controller
 
         return new UserResource($user);
     }
+
+    public function getAll(){
+        $users = $this->userService->getAll();
+
+        return UserResource::collection($users);
+    }
 }

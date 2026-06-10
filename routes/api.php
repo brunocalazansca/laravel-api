@@ -8,3 +8,5 @@ Route::get('/test', function () {
 });
 
 Route::post('/user', [UserController::class, 'store']);
+
+Route::get('/user', [UserController::class, 'getAll']);

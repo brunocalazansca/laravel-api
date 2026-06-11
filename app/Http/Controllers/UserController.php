@@ -59,7 +59,7 @@ class UserController extends Controller
         ]);
     }
 
-    public function update(UpdateUserRequest $request, $id)
+    public function update(UpdateUserRequest $request, int $id)
     {
         $user = $this->userService->update($id, $request->validated());
 

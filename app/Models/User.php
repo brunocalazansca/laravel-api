@@ -13,8 +13,4 @@ class User extends Model
         'email',
         'senha'
     ];
-
-    protected $casts = [
-        'senha' => 'hashed',
-    ];
 }

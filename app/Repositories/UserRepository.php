@@ -14,7 +14,7 @@ class UserRepository implements UserRepositoryInterface
 
     public function all(): Collection
     {
-        return User::select(['id', 'nome', 'email', 'created_at', 'updated_at'])->get();
+        return User::all();
     }
 
     public function findById($id): ?User
@@ -38,5 +38,24 @@ class UserRepository implements UserRepositoryInterface
         $user->update($dados);
 
         return $user;
+    }
+
+    public function getAtivos(): Collection
+    {
+        return User::ativos()->get();
+    }
+
+    public function getPorTipo(string $tipo): Collection
+    {
+        return User::ativos()
+            ->where('tipo', $tipo)
+            ->get();
+    }
+
+    public function getPorEspecialidade(string $especialidade): Collection
+    {
+        return User::ativos()
+            ->where('especialidade', $especialidade)
+            ->get();
     }
 }

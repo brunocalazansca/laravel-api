@@ -32,9 +32,14 @@ class UpdateUserRequest extends FormRequest
                 'string',
                 'email',
                 'max:255',
-                Rule::unique('user', 'email')->ignore($id),
+                Rule::unique('users', 'email')->ignore($id),
             ],
-            'senha' => 'sometimes|required|string|min:8'
+            'senha' => 'sometimes|required|string|min:8',
+            'tipo' => 'sometimes|required|string|in:admin,medico,enfermeiro',
+            'registro_profissional' => 'sometimes|nullable|string|max:50',
+            'especialidade' => 'sometimes|nullable|string|max:100',
+            'carga_horaria_maxima' => 'sometimes|required|integer|min:1|max:168',
+            'ativo' => 'sometimes|boolean',
         ];
     }
 
@@ -44,10 +49,10 @@ class UpdateUserRequest extends FormRequest
             'email.unique' => 'Este e-mail já está em uso por outro usuário.',
             'email.required' => 'O campo de e-mail é obrigatório.',
             'email.email' => 'Por favor, insira um endereço de e-mail válido.',
-
             'nome.required' => 'O nome não pode ficar em branco.',
-
             'senha.min' => 'A senha deve ter pelo menos 8 caracteres.',
+            'tipo.in' => 'O tipo de usuário deve ser: admin, medico ou enfermeiro.',
+            'carga_horaria_maxima.max' => 'A carga horária máxima permitida na semana é de 168 horas.',
         ];
     }
 }

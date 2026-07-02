@@ -71,4 +71,43 @@ class UserController extends Controller
 
         return new UserResource($user);
     }
+
+    public function getAtivos()
+    {
+        $users = $this->userService->getAtivos();
+
+        if ($users->isEmpty()) {
+            return response()->json([
+                'message' => 'Nenhum usuário ativo encontrado.'
+            ], 404);
+        }
+
+        return UserResource::collection($users);
+    }
+
+    public function getPorTipo(string $tipo)
+    {
+        $users = $this->userService->getPorTipo($tipo);
+
+        if ($users->isEmpty()) {
+            return response()->json([
+                'message' => "Nenhum usuário do tipo '{$tipo}' encontrado."
+            ], 404);
+        }
+
+        return UserResource::collection($users);
+    }
+
+    public function getPorEspecialidade(string $especialidade)
+    {
+        $users = $this->userService->getPorEspecialidade($especialidade);
+
+        if ($users->isEmpty()) {
+            return response()->json([
+                'message' => "Nenhum usuário da especialidade '{$especialidade}' encontrado."
+            ], 404);
+        }
+
+        return UserResource::collection($users);
+    }
 }

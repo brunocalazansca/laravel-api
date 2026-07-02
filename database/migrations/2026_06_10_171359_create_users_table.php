@@ -11,11 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('user', function (Blueprint $table) {
+        Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('nome');
             $table->string('email')->unique();
             $table->string('senha');
+            $table->enum('tipo', ['admin', 'medico', 'enfermeiro'])->default('medico');
+            $table->string('registro_profissional', 50)->nullable();
+            $table->string('especialidade', 100)->nullable();
+            $table->integer('carga_horaria_maxima')->default(44);
+            $table->boolean('ativo')->default(true);
             $table->timestamps();
         });
     }

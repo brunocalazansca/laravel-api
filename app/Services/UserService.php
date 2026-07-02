@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Repositories\UserRepositoryInterface;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Database\Eloquent\Collection;
 
 class UserService
 {
@@ -38,5 +39,20 @@ class UserService
         }
 
         return $this->userRepository->update($id, $dados);
+    }
+
+    public function getAtivos(): Collection
+    {
+        return $this->userRepository->getAtivos();
+    }
+
+    public function getPorTipo(string $tipo): Collection
+    {
+        return $this->userRepository->getPorTipo($tipo);
+    }
+
+    public function getPorEspecialidade(string $especialidade): Collection
+    {
+        return $this->userRepository->getPorEspecialidade($especialidade);
     }
 }

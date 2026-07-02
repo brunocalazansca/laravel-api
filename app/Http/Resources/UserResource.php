@@ -18,7 +18,12 @@ class UserResource extends JsonResource
             'id' => $this->id,
             'nome' => $this->nome,
             'email' => $this->email,
-            'created_at' => $this->created_at,
+            'tipo' => $this->tipo,
+            'registro_profissional' => $this->registro_profissional,
+            'especialidade' => $this->especialidade,
+            'carga_horaria_maxima' => $this->carga_horaria_maxima,
+            'ativo' => $this->ativo,
+            'created_at' => $this->created_at ? $this->created_at->format('Y-m-d H:i:s') : null,
         ];
     }
 }

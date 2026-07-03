@@ -1,13 +1,13 @@
 services:
-    # Laravel PHP-FPM
+    # image project
     app:
         build:
-            context: ./api
+            context: .
             dockerfile: Dockerfile
         restart: unless-stopped
         working_dir: /var/www/
         volumes:
-            - ./api:/var/www
+            - ./:/var/www
         depends_on:
             db:
                 condition: service_healthy
@@ -16,33 +16,19 @@ services:
         networks:
             - laravel
 
-    # Nginx (API)
+    # nginx
     nginx:
         image: nginx:alpine
         restart: unless-stopped
         ports:
             - "8000:80"
         volumes:
-            - ./api:/var/www
-            - ./api/docker/nginx/:/etc/nginx/conf.d/
+            - ./:/var/www
+            - ./docker/nginx/:/etc/nginx/conf.d/
         networks:
             - laravel
 
-    # React SPA (Vite)
-    spa:
-        build:
-            context: ./spa
-            dockerfile: Dockerfile
-        restart: unless-stopped
-        ports:
-            - "3000:5173"
-        volumes:
-            - ./spa:/var/www/spa
-            - /var/www/spa/node_modules
-        networks:
-            - laravel
-
-    # PostgreSQL
+    # db postgres
     db:
         image: postgres:16
         restart: unless-stopped
@@ -73,7 +59,7 @@ services:
         networks:
             - laravel
 
-    # Redis
+    # redis
     redis:
         image: redis:latest
         networks:

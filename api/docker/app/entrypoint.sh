@@ -8,7 +8,7 @@ git config --global --add safe.directory /var/www
 [ ! -f .env ] && cp .env.example .env
 
 mkdir -p bootstrap/cache storage/framework/{sessions,views,cache}
-chmod -R 775 bootstrap/cache storage
+chmod -R 775 bootstrap/cache storage 2>/dev/null || true
 
 composer install --no-interaction --prefer-dist --optimize-autoloader
 

@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { Card } from '../../components/Card/Card';
-import { Toggle } from '../../components/Toggle/Toggle';
-import { Input } from '../../components/Input/Input';
-import { Button } from '../../components/Button/Button';
+import { Card } from '@/src/components/Card/Card';
+import { Toggle } from '@/src/components/Toggle/Toggle';
+import { Input } from '@/src/components/Input/Input';
+import { Button } from '@/src/components/Button/Button';
 import styles from './LoginCadastro.module.scss';
+import estetoscopio from '@/src/assets/estetoscopio.png';
 
 export default function LoginPage() {
     const [activeTab, setActiveTab] = useState<'login' | 'register'>('login');
@@ -22,8 +23,9 @@ export default function LoginPage() {
     return (
         <div className={styles.page}>
             <div className={styles.logo}>
+                <img src={estetoscopio} alt="Estetoscópio" className={styles.icone}/>
                 <span className={styles.logoText}>
-                    🩺 PlantãoMed
+                     PlantãoMed
                 </span>
             </div>
 
@@ -35,7 +37,7 @@ export default function LoginPage() {
                         id="email"
                         type="email"
                         label="E-mail"
-                        placeholder="voce@hospital.com"
+                        placeholder="exemplo@gmail.com"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         required

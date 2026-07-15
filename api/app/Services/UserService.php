@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\User;
 use App\Repositories\UserRepositoryInterface;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Database\Eloquent\Collection;
@@ -12,6 +13,13 @@ class UserService
 
     public function register($dados)
     {
+        if (User::count() === 0) {
+            $dados['tipo'] = 'admin';
+            $dados['ativo'] = true;
+        } else {
+            $dados['tipo'] = $dados['tipo'] ?? 'comum';
+        }
+
         $dados['senha'] = Hash::make($dados['senha']);
 
         return $this->userRepository->create($dados);

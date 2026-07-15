@@ -18,6 +18,7 @@ class User extends Authenticatable
         'email',
         'senha',
         'tipo',
+        'cargo',
         'registro_profissional',
         'especialidade',
         'carga_horaria_maxima',

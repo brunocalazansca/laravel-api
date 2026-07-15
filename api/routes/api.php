@@ -10,6 +10,7 @@ Route::get('/test', function () {
 });
 
 Route::post('/login', [AuthController::class, 'login']);
+Route::post('/setup', [UserController::class, 'setupInicial']);
 
 // Rotas protegidas (precisam de token de acesso)
 Route::middleware('auth:sanctum')->group(function () {

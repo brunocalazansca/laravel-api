@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Http\Resources\UserResource;
@@ -109,5 +110,21 @@ class UserController extends Controller
         }
 
         return UserResource::collection($users);
+    }
+
+    public function setupInicial(StoreUserRequest $request)
+    {
+        if (User::count() > 0) {
+            return response()->json([
+                'message' => 'Acesso negado. O sistema já possui um administrador cadastrado.'
+            ], 403);
+        }
+
+        $user = $this->userService->register($request->validated());
+
+        return response()->json([
+            'message' => 'Administrador primário criado com sucesso! Faça login para continuar.',
+            'user' => $user
+        ], 201);
     }
 }

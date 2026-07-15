@@ -16,7 +16,8 @@ return new class extends Migration
             $table->string('nome');
             $table->string('email')->unique();
             $table->string('senha');
-            $table->enum('tipo', ['admin', 'medico', 'enfermeiro'])->default('medico');
+            $table->string('tipo')->default('comum');
+            $table->string('cargo');
             $table->string('registro_profissional', 50)->nullable();
             $table->string('especialidade', 100)->nullable();
             $table->integer('carga_horaria_maxima')->default(44);

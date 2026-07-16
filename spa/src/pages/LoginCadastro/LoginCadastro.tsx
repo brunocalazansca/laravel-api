@@ -7,6 +7,7 @@ import styles from './LoginCadastro.module.scss';
 import estetoscopio from '@/src/assets/estetoscopio.png';
 import { authService } from "@/src/service/authService";
 import { Toast, type ToastType } from "@/src/components/Toast/Toast";
+import { useNavigate } from 'react-router-dom';
 
 export default function LoginPage() {
     const [activeTab, setActiveTab] = useState<'login' | 'register'>('login');
@@ -15,6 +16,7 @@ export default function LoginPage() {
     const [senha, setSenha] = useState('');
     const [confirmarSenha, setConfirmarSenha] = useState('');
     const [toast, setToast] = useState<{ message: string, type: ToastType } | null>(null);
+    const navigate = useNavigate();
 
     const handleTabChange = (tab: 'login' | 'register') => {
         setActiveTab(tab);
@@ -60,7 +62,7 @@ export default function LoginPage() {
                 localStorage.setItem('token', loginResponse.token);
 
                 setTimeout(() => {
-                    navigate('/completar-perfil');
+                    navigate('/finalizar-cadastro');
                 }, 1500);
             }
 

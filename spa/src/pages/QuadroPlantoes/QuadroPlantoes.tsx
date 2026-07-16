@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   Calendar,
   ChevronLeft,
@@ -9,148 +9,46 @@ import {
   GripVertical,
   Stethoscope,
 } from "lucide-react";
+
+import {
+  SHIFTS,
+  DAYS,
+  ROLE_COLORS
+} from "@/src/constants/quadroPlantoes";
+
+import { useQuadroPlantoes } from "@/src/hooks/useQuadroPlantoes";
 import styles from "./QuadroPlantoes.module.scss";
 
-type ShiftId = "manha" | "tarde" | "noite";
-type DayId = "seg" | "ter" | "qua" | "qui" | "sex" | "sab" | "dom";
-type Role = "Médico(a)" | "Enfermeiro(a)" | "Técnico(a)";
-
-interface Shift {
-  id: ShiftId;
-  label: string;
-  hours: string;
-  bar: string;
-  tint: string;
-}
-
-interface Day {
-  id: DayId;
-  label: string;
-  date: string;
-  isToday?: boolean;
-}
-
-interface StaffMember {
-  id: string;
-  name: string;
-  role: Role;
-}
-
-interface DragOrigin {
-  dayId: DayId;
-  shiftId: ShiftId;
-}
-
-type Assignments = Partial<Record<string, string[]>>;
-
-const SHIFTS: Shift[] = [
-  { id: "manha", label: "Manhã",  hours: "07h – 13h", bar: "#F2B84B", tint: "#FDF1DC" },
-  { id: "tarde", label: "Tarde",  hours: "13h – 19h", bar: "#F0904D", tint: "#FDEBDD" },
-  { id: "noite", label: "Noite",  hours: "19h – 07h", bar: "#5D7BD9", tint: "#E9EDFB" },
-];
-
-const DAYS: Day[] = [
-  { id: "seg", label: "SEG", date: "29/06" },
-  { id: "ter", label: "TER", date: "30/06" },
-  { id: "qua", label: "QUA", date: "1/07" },
-  { id: "qui", label: "QUI", date: "2/07" },
-  { id: "sex", label: "SEX", date: "3/07", isToday: true },
-  { id: "sab", label: "SÁB", date: "4/07" },
-  { id: "dom", label: "DOM", date: "5/07" },
-];
-
-const ROLE_COLORS: Record<Role, { bg: string }> = {
-  "Médico(a)":    { bg: "#0F9AA6" },
-  "Enfermeiro(a)":{ bg: "#5D7BD9" },
-  "Técnico(a)":   { bg: "#9B6BD9" },
-};
-
-const INITIAL_STAFF: StaffMember[] = [
-  { id: "s1", name: "Dra. Ana Ferreira",   role: "Médico(a)" },
-  { id: "s2", name: "Dr. Bruno Calazans",  role: "Médico(a)" },
-  { id: "s3", name: "Enf. Camila Rocha",   role: "Enfermeiro(a)" },
-  { id: "s4", name: "Enf. Diego Martins",  role: "Enfermeiro(a)" },
-  { id: "s5", name: "Téc. Elisa Prado",    role: "Técnico(a)" },
-  { id: "s6", name: "Dr. Felipe Souza",    role: "Médico(a)" },
-];
 
 function initials(name: string): string {
   const parts = name.replace(/^(Dra?\.|Enf\.|Téc\.)\s*/i, "").split(" ");
   return ((parts[0]?.[0] || "") + (parts[1]?.[0] || "")).toUpperCase();
 }
 
-function cellKey(dayId: DayId, shiftId: ShiftId): string {
+function cellKey(dayId: string, shiftId: string): string {
   return `${dayId}__${shiftId}`;
 }
 
 export default function QuadroPlantoes(): JSX.Element {
-  const [staff] = useState<StaffMember[]>(INITIAL_STAFF);
-  const [assignments, setAssignments] = useState<Assignments>({});
-  const [dragStaffId, setDragStaffId] = useState<string | null>(null);
-  const [dragOrigin, setDragOrigin] = useState<DragOrigin | null>(null);
-  const [hoverCell, setHoverCell] = useState<string | null>(null);
-  const [poolHover, setPoolHover] = useState(false);
-
-  const assignedIds = new Set(Object.values(assignments).flatMap((a) => a ?? []));
-  const poolStaff = staff.filter((p) => !assignedIds.has(p.id));
-  const staffById = Object.fromEntries(staff.map((s) => [s.id, s]));
-
-  function handleDragStart(e: React.DragEvent, staffId: string, origin: DragOrigin | null) {
-    setDragStaffId(staffId);
-    setDragOrigin(origin);
-    e.dataTransfer.effectAllowed = "move";
-    try { e.dataTransfer.setData("text/plain", staffId); } catch { /* noop */ }
-  }
-
-  function handleDragEnd() {
-    setDragStaffId(null);
-    setDragOrigin(null);
-    setHoverCell(null);
-    setPoolHover(false);
-  }
-
-  function removeFromOrigin(next: Assignments) {
-    if (!dragOrigin || !dragStaffId) return;
-    const key = cellKey(dragOrigin.dayId, dragOrigin.shiftId);
-    const filtered = (next[key] || []).filter((id) => id !== dragStaffId);
-    filtered.length === 0 ? delete next[key] : (next[key] = filtered);
-  }
-
-  function handleDropOnCell(e: React.DragEvent, dayId: DayId, shiftId: ShiftId) {
-    e.preventDefault();
-    if (!dragStaffId) return;
-    setAssignments((prev) => {
-      const next = { ...prev };
-      removeFromOrigin(next);
-      const key = cellKey(dayId, shiftId);
-      const list = next[key] ? [...(next[key] as string[])] : [];
-      if (!list.includes(dragStaffId)) list.push(dragStaffId);
-      next[key] = list;
-      return next;
-    });
-    handleDragEnd();
-  }
-
-  function handleDropOnPool(e: React.DragEvent) {
-    e.preventDefault();
-    if (!dragStaffId || !dragOrigin) { handleDragEnd(); return; }
-    setAssignments((prev) => { const next = { ...prev }; removeFromOrigin(next); return next; });
-    handleDragEnd();
-  }
-
-  function removeAssignment(dayId: DayId, shiftId: ShiftId, staffId: string) {
-    setAssignments((prev) => {
-      const key = cellKey(dayId, shiftId);
-      const next = { ...prev };
-      const filtered = (next[key] || []).filter((id) => id !== staffId);
-      filtered.length === 0 ? delete next[key] : (next[key] = filtered);
-      return next;
-    });
-  }
+  const {
+    staff,
+    assignments,
+    dragStaffId,
+    hoverCell,
+    poolHover,
+    poolStaff,
+    staffById,
+    setHoverCell,
+    setPoolHover,
+    handleDragStart,
+    handleDragEnd,
+    handleDropOnCell,
+    handleDropOnPool,
+    removeAssignment,
+  } = useQuadroPlantoes();
 
   return (
     <div className={styles.page}>
-      {/* Navbar */}
       <nav className={styles.navbar}>
         <div className={styles.navLeft}>
           <div className={styles.brand}>

@@ -37,6 +37,10 @@ class StoreUserRequest extends FormRequest
     public function messages(): array
     {
         return [
+            'email.unique' => 'Este e-mail já está cadastrado em nosso sistema.',
+            'email.required' => 'O campo e-mail é obrigatório.',
+            'email.email' => 'Digite um formato de e-mail válido.',
+            'senha.min' => 'A senha deve ter no mínimo 8 caracteres.',
             'tipo.in' => 'O tipo de usuário deve ser: admin, medico ou enfermeiro.',
             'carga_horaria_maxima.max' => 'A carga horária máxima permitida na semana é de 168 horas.',
         ];

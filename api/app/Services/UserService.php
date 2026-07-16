@@ -18,7 +18,7 @@ class UserService
             $dados['ativo'] = true;
         } else {
             $dados['tipo'] = 'comum';
-            $dados['ativo'] = false;
+            $dados['ativo'] = true;
         }
 
         return $this->userRepository->create($dados);

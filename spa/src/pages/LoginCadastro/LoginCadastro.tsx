@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card } from '@/src/components/Card/Card';
 import { Toggle } from '@/src/components/Toggle/Toggle';
 import { Input } from '@/src/components/Input/Input';
@@ -6,6 +6,7 @@ import { Button } from '@/src/components/Button/Button';
 import styles from './LoginCadastro.module.scss';
 import estetoscopio from '@/src/assets/estetoscopio.png';
 import { authService } from "@/src/service/authService";
+import { Toast, type ToastType } from "@/src/components/Toast/Toast";
 
 export default function LoginPage() {
     const [activeTab, setActiveTab] = useState<'login' | 'register'>('login');
@@ -13,12 +14,18 @@ export default function LoginPage() {
     const [email, setEmail] = useState('');
     const [senha, setSenha] = useState('');
     const [confirmarSenha, setConfirmarSenha] = useState('');
+    const [toast, setToast] = useState<{ message: string, type: ToastType } | null>(null);
 
     const handleTabChange = (tab: 'login' | 'register') => {
         setActiveTab(tab);
+    };
+
+    useEffect(() => {
         setEmail('');
         setSenha('');
-    };
+        setNome('');
+        setConfirmarSenha('');
+    }, [activeTab]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -26,39 +33,44 @@ export default function LoginPage() {
         try {
             if (activeTab === 'login') {
                 const response = await authService.login({ email, senha });
-
                 localStorage.setItem('token', response.token);
 
-                alert("Login realizado com sucesso!")!
+                setToast({ message: "Login realizado com sucesso!", type: 'success' });
             } else {
                 if (senha !== confirmarSenha) {
-                    alert("As senhas não coincidem!");
+                    setToast({ message: "As senhas não coincidem!", type: 'error' });
                     return;
                 }
 
-                const resposta = await authService.register({ nome, email, senha });
+                await authService.register({ nome, email, senha });
 
-                if (resposta.data.tipo === 'admin') {
-                    alert('Setup inicial concluído! Você é o Administrador. Faça login.');
-                } else {
-                    alert('Conta criada com sucesso! Aguarde a aprovação da administração.');
-                }
+                setToast({ message: 'Cadastro realizado com sucesso!', type: 'success' });
 
-                handleTabChange('login');
+                const loginResponse = await authService.login({ email, senha });
+                localStorage.setItem('token', loginResponse.token);
+
+                setTimeout(() => {
+                    navigate('/completar-perfil');
+                }, 1500);
             }
 
         } catch (error: any) {
-            console.error('Erro na requisição:', error);
+            const mensagem = error.response?.data?.message || 'Erro de validação nos dados.';
 
-            console.log('Erros de validação:', error.response?.data?.errors);
-
-            const mensagem = error.response?.data?.message || 'Ocorreu um erro inesperado.';
-            alert(mensagem);
+            setToast({ message: mensagem, type: 'error' });
         }
     };
 
     return (
         <div className={styles.page}>
+            {toast && (
+                <Toast
+                    message={toast.message}
+                    type={toast.type}
+                    onClose={() => setToast(null)}
+                />
+            )}
+
             <div className={styles.logo}>
                 <img src={estetoscopio} alt="Estetoscópio" className={styles.icone}/>
                 <span className={styles.logoText}>
@@ -69,11 +81,11 @@ export default function LoginPage() {
             <Card>
                 <Toggle activeTab={activeTab} onTabChange={handleTabChange} />
 
-                <form onSubmit={handleSubmit}>
+                <form key={activeTab} onSubmit={handleSubmit} autoComplete="off">
                     {activeTab === "register" && (
                         <Input
                             id="nome"
-                            type="name"
+                            type="text"
                             label="Nome completo"
                             placeholder="Seu nome completo"
                             value={nome}
@@ -104,7 +116,7 @@ export default function LoginPage() {
 
                     {activeTab === "register" && (
                         <Input
-                            id="senha"
+                            id="confirmarSenha"
                             type="password"
                             label="Confirmar senha"
                             placeholder="Digite a senha novamente"

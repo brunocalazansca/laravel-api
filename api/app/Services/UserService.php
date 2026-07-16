@@ -17,10 +17,9 @@ class UserService
             $dados['tipo'] = 'admin';
             $dados['ativo'] = true;
         } else {
-            $dados['tipo'] = $dados['tipo'] ?? 'comum';
+            $dados['tipo'] = 'comum';
+            $dados['ativo'] = false;
         }
-
-        $dados['senha'] = Hash::make($dados['senha']);
 
         return $this->userRepository->create($dados);
     }

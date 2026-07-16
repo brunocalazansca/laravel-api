@@ -10,7 +10,7 @@ Route::get('/test', function () {
 });
 
 Route::post('/login', [AuthController::class, 'login']);
-Route::post('/setup', [UserController::class, 'setupInicial']);
+Route::post('/user', [UserController::class, 'store']);
 
 // Rotas protegidas (precisam de token de acesso)
 Route::middleware('auth:sanctum')->group(function () {
@@ -20,7 +20,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user/especialidade/{especialidade}', [UserController::class, 'getPorEspecialidade']);
 
     // --- Rotas de usuário ---
-    Route::post('/user', [UserController::class, 'store']);
     Route::get('/user', [UserController::class, 'getAll']);
     Route::get('/user/{id}', [UserController::class, 'getById']);
     Route::delete('/user/{id}', [UserController::class, 'delete']);

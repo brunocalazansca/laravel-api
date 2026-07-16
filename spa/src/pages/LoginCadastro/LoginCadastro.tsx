@@ -5,18 +5,55 @@ import { Input } from '@/src/components/Input/Input';
 import { Button } from '@/src/components/Button/Button';
 import styles from './LoginCadastro.module.scss';
 import estetoscopio from '@/src/assets/estetoscopio.png';
+import { authService } from "@/src/service/authService";
 
 export default function LoginPage() {
     const [activeTab, setActiveTab] = useState<'login' | 'register'>('login');
+    const [nome, setNome] = useState('');
     const [email, setEmail] = useState('');
     const [senha, setSenha] = useState('');
+    const [confirmarSenha, setConfirmarSenha] = useState('');
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleTabChange = (tab: 'login' | 'register') => {
+        setActiveTab(tab);
+        setEmail('');
+        setSenha('');
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (activeTab === 'login') {
-            console.log('Fazendo login com:', { email, senha });
-        } else {
-            console.log('Criando conta com:', { email, senha });
+
+        try {
+            if (activeTab === 'login') {
+                const response = await authService.login({ email, senha });
+
+                localStorage.setItem('token', response.token);
+
+                alert("Login realizado com sucesso!")!
+            } else {
+                if (senha !== confirmarSenha) {
+                    alert("As senhas não coincidem!");
+                    return;
+                }
+
+                const resposta = await authService.register({ nome, email, senha });
+
+                if (resposta.data.tipo === 'admin') {
+                    alert('Setup inicial concluído! Você é o Administrador. Faça login.');
+                } else {
+                    alert('Conta criada com sucesso! Aguarde a aprovação da administração.');
+                }
+
+                handleTabChange('login');
+            }
+
+        } catch (error: any) {
+            console.error('Erro na requisição:', error);
+
+            console.log('Erros de validação:', error.response?.data?.errors);
+
+            const mensagem = error.response?.data?.message || 'Ocorreu um erro inesperado.';
+            alert(mensagem);
         }
     };
 
@@ -30,14 +67,26 @@ export default function LoginPage() {
             </div>
 
             <Card>
-                <Toggle activeTab={activeTab} onTabChange={setActiveTab} />
+                <Toggle activeTab={activeTab} onTabChange={handleTabChange} />
 
                 <form onSubmit={handleSubmit}>
+                    {activeTab === "register" && (
+                        <Input
+                            id="nome"
+                            type="name"
+                            label="Nome completo"
+                            placeholder="Seu nome completo"
+                            value={nome}
+                            onChange={(e) => setNome(e.target.value)}
+                            required
+                        />
+                    )}
+
                     <Input
                         id="email"
                         type="email"
                         label="E-mail"
-                        placeholder="exemplo@gmail.com"
+                        placeholder="seu@email.com"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         required
@@ -47,11 +96,23 @@ export default function LoginPage() {
                         id="senha"
                         type="password"
                         label="Senha"
-                        placeholder="••••••••"
+                        placeholder="Mínimo 8 caracteres"
                         value={senha}
                         onChange={(e) => setSenha(e.target.value)}
                         required
                     />
+
+                    {activeTab === "register" && (
+                        <Input
+                            id="senha"
+                            type="password"
+                            label="Confirmar senha"
+                            placeholder="Digite a senha novamente"
+                            value={confirmarSenha}
+                            onChange={(e) => setConfirmarSenha(e.target.value)}
+                            required
+                        />
+                    )}
 
                     <Button type="submit">
                         {activeTab === 'login' ? 'Entrar' : 'Criar conta'}

@@ -17,11 +17,11 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->string('senha');
             $table->string('tipo')->default('comum');
-            $table->string('cargo');
+            $table->boolean('ativo')->default(false);
+            $table->string('cargo')->nullable();
             $table->string('registro_profissional', 50)->nullable();
             $table->string('especialidade', 100)->nullable();
-            $table->integer('carga_horaria_maxima')->default(44);
-            $table->boolean('ativo')->default(true);
+            $table->integer('carga_horaria_maxima')->nullable();
             $table->timestamps();
         });
     }

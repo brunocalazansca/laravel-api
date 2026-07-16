@@ -26,10 +26,10 @@ class StoreUserRequest extends FormRequest
             'email' => 'required|string|email|max:255|unique:users,email',
             'senha' => 'required|string|min:8',
             'tipo' => 'sometimes|in:admin,comum',
-            'cargo' => 'required|string|in:medico,enfermeiro',
+            'cargo' => 'nullable|string|in:medico,enfermeiro',
             'registro_profissional' => 'nullable|string|max:50',
             'especialidade' => 'nullable|string|max:100',
-            'carga_horaria_maxima' => 'required|integer|min:1|max:168',
+            'carga_horaria_maxima' => 'nullable|integer|min:1|max:168',
             'ativo' => 'nullable|boolean',
         ];
     }

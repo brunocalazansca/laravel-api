@@ -32,6 +32,11 @@ export default function LoginPage() {
 
         try {
             if (activeTab === 'login') {
+                if (!email.trim() || !senha.trim()) {
+                    setToast({ message: "Preencha todos os campos!", type: 'warning' });
+                    return;
+                }
+
                 const response = await authService.login({ email, senha });
                 localStorage.setItem('token', response.token);
 
@@ -39,6 +44,11 @@ export default function LoginPage() {
             } else {
                 if (senha !== confirmarSenha) {
                     setToast({ message: "As senhas não coincidem!", type: 'error' });
+                    return;
+                }
+
+                if (!nome.trim() || !email.trim() || !senha.trim() || !confirmarSenha.trim()) {
+                    setToast({ message: "Preencha todos os campos!", type: 'warning' });
                     return;
                 }
 
@@ -90,7 +100,6 @@ export default function LoginPage() {
                             placeholder="Seu nome completo"
                             value={nome}
                             onChange={(e) => setNome(e.target.value)}
-                            required
                         />
                     )}
 
@@ -101,7 +110,6 @@ export default function LoginPage() {
                         placeholder="seu@email.com"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        required
                     />
 
                     <Input
@@ -111,7 +119,6 @@ export default function LoginPage() {
                         placeholder="Mínimo 8 caracteres"
                         value={senha}
                         onChange={(e) => setSenha(e.target.value)}
-                        required
                     />
 
                     {activeTab === "register" && (
@@ -122,7 +129,6 @@ export default function LoginPage() {
                             placeholder="Digite a senha novamente"
                             value={confirmarSenha}
                             onChange={(e) => setConfirmarSenha(e.target.value)}
-                            required
                         />
                     )}
 

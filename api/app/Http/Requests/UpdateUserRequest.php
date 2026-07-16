@@ -36,6 +36,7 @@ class UpdateUserRequest extends FormRequest
             ],
             'senha' => 'sometimes|required|string|min:8',
             'tipo' => 'sometimes|required|string|in:admin,medico,enfermeiro',
+            'cargo' => 'sometimes|nullable|string|max:100',
             'registro_profissional' => 'sometimes|nullable|string|max:50',
             'especialidade' => 'sometimes|nullable|string|max:100',
             'carga_horaria_maxima' => 'sometimes|required|integer|min:1|max:168',
@@ -53,6 +54,7 @@ class UpdateUserRequest extends FormRequest
             'senha.min' => 'A senha deve ter pelo menos 8 caracteres.',
             'tipo.in' => 'O tipo de usuário deve ser: admin, medico ou enfermeiro.',
             'carga_horaria_maxima.max' => 'A carga horária máxima permitida na semana é de 168 horas.',
+            'cargo.required' => 'O cargo é obrigatório.',
         ];
     }
 }

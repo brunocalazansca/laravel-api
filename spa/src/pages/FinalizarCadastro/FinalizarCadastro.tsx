@@ -15,9 +15,42 @@ export default function FinalizarCadastro() {
     const [cargaHoraria, setCargaHoraria] = useState('');
     const [toast, setToast] = useState<{ message: string, type: ToastType } | null>(null);
 
+    useEffect(() => {
+        const userId = localStorage.getItem('user_id');
+        if (!userId) return;
+
+        authService.getById(Number(userId)).then((data) => {
+            const user = data.data;
+            if (user.nome) setNome(user.nome);
+            if (user.email) setEmail(user.email);
+            if (user.cargo) setCargo(user.cargo);
+            if (user.registro_profissional) setRegistroProfissional(user.registro_profissional);
+            if (user.especialidade) setEspecialidade(user.especialidade);
+            if (user.carga_horaria_maxima) setCargaHoraria(String(user.carga_horaria_maxima));
+        });
+    }, []);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        const userId = localStorage.getItem('user_id');
+        if (!userId) return;
+
+        try {
+            await authService.update(Number(userId), {
+                nome,
+                email,
+                cargo,
+                registro_profissional: registroProfissional,
+                especialidade,
+                carga_horaria_maxima: Number(cargaHoraria),
+            });
+
+            setToast({ message: 'Cadastro finalizado com sucesso!', type: 'success' });
+        } catch (error: any) {
+            const mensagem = error.response?.data?.message || 'Erro ao salvar os dados.';
+            setToast({ message: mensagem, type: 'error' });
+        }
     };
 
     return (
@@ -54,7 +87,6 @@ export default function FinalizarCadastro() {
                         placeholder="seu@email.com"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        // Dica: Adicione a tag 'disabled' aqui se não quiser que ele mude o email
                     />
 
                     <Input
@@ -68,7 +100,7 @@ export default function FinalizarCadastro() {
 
                     <Input
                         id="registro-profissional"
-                        type="text" /* Corrigido para texto! */
+                        type="text"
                         label="Registo profissional"
                         placeholder="CRM-12345"
                         value={registroProfissional}

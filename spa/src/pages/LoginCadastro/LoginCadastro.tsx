@@ -39,10 +39,14 @@ export default function LoginPage() {
                     return;
                 }
 
-                const response = await authService.login({ email, senha });
-                localStorage.setItem('token', response.token);
+                await authService.login({ email, senha });
 
                 setToast({ message: "Login realizado com sucesso!", type: 'success' });
+
+                setTimeout(() => {
+                    navigate('/finalizar-cadastro');
+                }, 1500);
+
             } else {
                 if (senha !== confirmarSenha) {
                     setToast({ message: "As senhas não coincidem!", type: 'error' });
@@ -58,8 +62,7 @@ export default function LoginPage() {
 
                 setToast({ message: 'Cadastro realizado com sucesso!', type: 'success' });
 
-                const loginResponse = await authService.login({ email, senha });
-                localStorage.setItem('token', loginResponse.token);
+                await authService.login({ email, senha });
 
                 setTimeout(() => {
                     navigate('/finalizar-cadastro');

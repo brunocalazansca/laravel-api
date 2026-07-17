@@ -3,6 +3,7 @@ import { Card } from '@/src/components/Card/Card';
 import { Toggle } from '@/src/components/Toggle/Toggle';
 import { Input } from '@/src/components/Input/Input';
 import { Button } from '@/src/components/Button/Button';
+import { Checkbox } from '@/src/components/Checkbox/Checkbox'
 import styles from './LoginCadastro.module.scss';
 import estetoscopio from '@/src/assets/estetoscopio.png';
 import { authService } from "@/src/service/authService";
@@ -15,11 +16,13 @@ export default function LoginPage() {
     const [email, setEmail] = useState('');
     const [senha, setSenha] = useState('');
     const [confirmarSenha, setConfirmarSenha] = useState('');
+    const [mostrarSenha, setMostrarSenha] = useState(false);
     const [toast, setToast] = useState<{ message: string, type: ToastType } | null>(null);
     const navigate = useNavigate();
 
     const handleTabChange = (tab: 'login' | 'register') => {
         setActiveTab(tab);
+        setMostrarSenha(false);
     };
 
     useEffect(() => {
@@ -118,7 +121,7 @@ export default function LoginPage() {
 
                     <Input
                         id="senha"
-                        type="password"
+                        type={mostrarSenha ? "text" : "password"}
                         label="Senha"
                         placeholder="Mínimo 8 caracteres"
                         value={senha}
@@ -128,13 +131,20 @@ export default function LoginPage() {
                     {activeTab === "register" && (
                         <Input
                             id="confirmarSenha"
-                            type="password"
+                            type={mostrarSenha ? "text" : "password"}
                             label="Confirmar senha"
                             placeholder="Digite a senha novamente"
                             value={confirmarSenha}
                             onChange={(e) => setConfirmarSenha(e.target.value)}
                         />
                     )}
+
+                    <Checkbox
+                        id="mostrarSenha"
+                        label="Mostrar senha"
+                        checked={mostrarSenha}
+                        onChange={(e) => setMostrarSenha(e.target.checked)}
+                    />
 
                     <Button type="submit">
                         {activeTab === 'login' ? 'Entrar' : 'Criar conta'}

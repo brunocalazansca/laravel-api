@@ -18,7 +18,7 @@ export default function App() {
           <Route path="/" element={<Navigate to="/login" replace />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/finalizar-cadastro" element={<PrivateRoute><FinalizarCadastro /></PrivateRoute>} />
-            <Route path="/plantoes" element={<QuadroPlantoes />} />
+          <Route path="/plantoes" element={<PrivateRoute><QuadroPlantoes /></PrivateRoute>} />
         </Routes>
       </Router>
   );

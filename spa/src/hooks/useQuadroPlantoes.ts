@@ -1,18 +1,40 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import type { DayId, ShiftId, DragOrigin, Assignments, StaffMember } from "@/src/types/quadroPlantoes";
-import { INITIAL_STAFF } from "@/src/constants/quadroPlantoes";
+import { authService } from "@/src/service/authService";
 
 function cellKey(dayId: DayId, shiftId: ShiftId): string {
   return `${dayId}__${shiftId}`;
 }
 
 export function useQuadroPlantoes() {
-  const [staff] = useState<StaffMember[]>(INITIAL_STAFF);
+  const [staff, setStaff] = useState<StaffMember[]>([]);
+  const [emailUsuario, setEmailUsuario] = useState('');
+  const [isAdmin, setIsAdmin] = useState(false);
   const [assignments, setAssignments] = useState<Assignments>({});
   const [dragStaffId, setDragStaffId] = useState<string | null>(null);
   const [dragOrigin, setDragOrigin] = useState<DragOrigin | null>(null);
   const [hoverCell, setHoverCell] = useState<string | null>(null);
   const [poolHover, setPoolHover] = useState(false);
+
+  useEffect(() => {
+    const userId = localStorage.getItem('user_id');
+    if (userId) {
+      authService.getById(Number(userId)).then((data) => {
+        setEmailUsuario(data.data.email);
+        setIsAdmin(data.data.tipo === 'admin');
+      });
+    }
+
+    authService.getAll().then((data) => {
+      const VALID_ROLES = ["Médico(a)", "Enfermeiro(a)", "Técnico(a)"];
+      const usuarios: StaffMember[] = data.data.map((u: any) => ({
+        id: String(u.id),
+        name: u.nome,
+        role: VALID_ROLES.includes(u.cargo) ? u.cargo : "Médico(a)",
+      }));
+      setStaff(usuarios);
+    });
+  }, []);
 
   const assignedIds = new Set(Object.values(assignments).flatMap((a) => a ?? []));
   const poolStaff = staff.filter((p) => !assignedIds.has(p.id));
@@ -73,6 +95,8 @@ export function useQuadroPlantoes() {
 
   return {
     staff,
+    emailUsuario,
+    isAdmin,
     assignments,
     dragStaffId,
     hoverCell,

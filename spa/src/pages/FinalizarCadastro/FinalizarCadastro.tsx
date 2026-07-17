@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card } from '@/src/components/Card/Card';
 import { Input } from '@/src/components/Input/Input';
 import { Button } from '@/src/components/Button/Button';
@@ -14,6 +15,8 @@ export default function FinalizarCadastro() {
     const [especialidade, setEspecialidade] = useState('');
     const [cargaHoraria, setCargaHoraria] = useState('');
     const [toast, setToast] = useState<{ message: string, type: ToastType } | null>(null);
+
+    const navigate = useNavigate();
 
     useEffect(() => {
         const userId = localStorage.getItem('user_id');
@@ -36,6 +39,18 @@ export default function FinalizarCadastro() {
         const userId = localStorage.getItem('user_id');
         if (!userId) return;
 
+        if (
+            !nome.trim() ||
+            !email.trim() ||
+            !cargo.trim() ||
+            !registroProfissional.trim() ||
+            !especialidade.trim() ||
+            !cargaHoraria.trim()
+        ) {
+            setToast({ message: 'Preencha todos os campos!', type: 'warning' });
+            return;
+        }
+
         try {
             await authService.update(Number(userId), {
                 nome,
@@ -47,6 +62,8 @@ export default function FinalizarCadastro() {
             });
 
             setToast({ message: 'Cadastro finalizado com sucesso!', type: 'success' });
+
+            setTimeout(() => navigate('/plantoes'), 1500);
         } catch (error: any) {
             const mensagem = error.response?.data?.message || 'Erro ao salvar os dados.';
             setToast({ message: mensagem, type: 'error' });

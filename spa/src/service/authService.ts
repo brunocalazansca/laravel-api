@@ -18,6 +18,9 @@ export const authService = {
         localStorage.setItem('token', access_token);
         localStorage.setItem('user_id', user.id);
 
+        const cadastroCompleto = user.cargo && user.registro_profissional && user.especialidade && user.carga_horaria_maxima;
+        localStorage.setItem('cadastro_completo', cadastroCompleto ? 'true' : 'false');
+
         return response.data;
     },
 
@@ -33,6 +36,11 @@ export const authService = {
 
     async update(id: number, dados: Record<string, unknown>) {
         const response = await api.put(`/user/${id}`, dados);
+        return response.data;
+    },
+
+    async getAll() {
+        const response = await api.get('/user');
         return response.data;
     }
 };

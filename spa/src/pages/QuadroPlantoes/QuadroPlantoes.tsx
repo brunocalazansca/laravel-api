@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Calendar,
   ChevronLeft,
@@ -8,12 +9,14 @@ import {
   X,
   GripVertical,
   Stethoscope,
+  Shield,
 } from "lucide-react";
 
 import {
   SHIFTS,
   DAYS,
-  ROLE_COLORS
+  ROLE_COLORS,
+  DEFAULT_ROLE_COLOR,
 } from "@/src/constants/quadroPlantoes";
 
 import { useQuadroPlantoes } from "@/src/hooks/useQuadroPlantoes";
@@ -32,6 +35,8 @@ function cellKey(dayId: string, shiftId: string): string {
 export default function QuadroPlantoes(): JSX.Element {
   const {
     staff,
+    emailUsuario,
+    isAdmin,
     assignments,
     dragStaffId,
     hoverCell,
@@ -47,6 +52,14 @@ export default function QuadroPlantoes(): JSX.Element {
     removeAssignment,
   } = useQuadroPlantoes();
 
+  const navigate = useNavigate();
+
+  function handleLogout() {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user_id');
+    navigate('/login');
+  }
+
   return (
     <div className={styles.page}>
       <nav className={styles.navbar}>
@@ -59,13 +72,19 @@ export default function QuadroPlantoes(): JSX.Element {
             <LayoutGrid size={15} />
             Quadro
           </button>
+          {isAdmin && (
+            <button className={styles.navBtn}>
+              <Shield size={15} />
+              Área do Administrador
+            </button>
+          )}
         </div>
         <div className={styles.navRight}>
           <div className={styles.userInfo}>
             <span>Conectado como</span>
-            <span>brunocalazansca@gmail.com</span>
+            <span>{emailUsuario}</span>
           </div>
-          <button className={styles.logoutBtn}>
+          <button className={styles.logoutBtn} onClick={handleLogout}>
             <LogOut size={15} />
             Sair
           </button>
@@ -142,7 +161,7 @@ export default function QuadroPlantoes(): JSX.Element {
                             className={styles.chip}
                             onDragStart={(e) => handleDragStart(e, id, { dayId: d.id, shiftId: shift.id })}
                             onDragEnd={handleDragEnd}
-                            style={{ backgroundColor: ROLE_COLORS[person.role].bg, opacity: dragStaffId === id ? 0.4 : 1 }}
+                            style={{ backgroundColor: (ROLE_COLORS[person.role] ?? DEFAULT_ROLE_COLOR).bg, opacity: dragStaffId === id ? 0.4 : 1 }}
                             title={`${person.name} — ${person.role}`}
                           >
                             <GripVertical size={12} color="rgba(255,255,255,0.6)" />
@@ -187,7 +206,7 @@ export default function QuadroPlantoes(): JSX.Element {
                   className={styles.poolCard}
                   onDragStart={(e) => handleDragStart(e, person.id, null)}
                   onDragEnd={handleDragEnd}
-                  style={{ backgroundColor: ROLE_COLORS[person.role].bg, opacity: dragStaffId === person.id ? 0.4 : 1 }}
+                  style={{ backgroundColor: (ROLE_COLORS[person.role] ?? DEFAULT_ROLE_COLOR).bg, opacity: dragStaffId === person.id ? 0.4 : 1 }}
                   title={`${person.name} — ${person.role}`}
                 >
                   <GripVertical size={13} color="rgba(255,255,255,0.6)" />

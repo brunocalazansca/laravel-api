@@ -43,9 +43,8 @@ export default function LoginPage() {
 
                 setToast({ message: "Login realizado com sucesso!", type: 'success' });
 
-                setTimeout(() => {
-                    navigate('/finalizar-cadastro');
-                }, 1500);
+                const destino = localStorage.getItem('cadastro_completo') === 'true' ? '/plantoes' : '/finalizar-cadastro';
+                setTimeout(() => navigate(destino), 1500);
 
             } else {
                 if (senha !== confirmarSenha) {

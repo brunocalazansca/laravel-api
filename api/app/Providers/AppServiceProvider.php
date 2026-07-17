@@ -4,6 +4,8 @@ namespace App\Providers;
 
 use App\Repositories\CargoRepository;
 use App\Repositories\CargoRepositoryInterface;
+use App\Repositories\EspecialidadeRepository;
+use App\Repositories\EspecialidadeRepositoryInterface;
 use App\Repositories\PlantaoRepository;
 use App\Repositories\PlantaoRepositoryInterface;
 use App\Repositories\UserRepository;
@@ -18,6 +20,7 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->bind(CargoRepositoryInterface::class, CargoRepository::class);
+        $this->app->bind(EspecialidadeRepositoryInterface::class, EspecialidadeRepository::class);
         $this->app->bind(UserRepositoryInterface::class, UserRepository::class);
         $this->app->bind(
             PlantaoRepositoryInterface::class,

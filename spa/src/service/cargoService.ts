@@ -3,7 +3,7 @@ import { api } from "./api";
 export const cargoService = {
     async getAll() {
         const response = await api.get('/cargo');
-        return response.data;
+        return response.data.data;
     },
 
     async create(nome: string) {

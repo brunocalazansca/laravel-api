@@ -7,6 +7,7 @@ import { Button } from '@/src/components/Button/Button';
 import styles from './FinalizarCadastro.module.scss';
 import { authService } from "@/src/service/authService";
 import { cargoService } from "@/src/service/cargoService";
+import { especialidadeService } from "@/src/service/especialidadeService";
 import { Toast, type ToastType } from "@/src/components/Toast/Toast";
 
 interface Cargo {
@@ -19,6 +20,7 @@ export default function FinalizarCadastro() {
     const [email, setEmail] = useState('');
     const [cargo, setCargo] = useState('');
     const [cargos, setCargos] = useState<Cargo[]>([]);
+    const [especialidades, setEspecialidades] = useState<Cargo[]>([]);
     const [registroProfissional, setRegistroProfissional] = useState('');
     const [especialidade, setEspecialidade] = useState('');
     const [cargaHoraria, setCargaHoraria] = useState('');
@@ -26,7 +28,8 @@ export default function FinalizarCadastro() {
     const navigate = useNavigate();
 
     useEffect(() => {
-        cargoService.getAll().then((data) => setCargos(data.data ?? data)).catch(console.error);
+        cargoService.getAll().then((data) => setCargos(data)).catch(console.error);
+        especialidadeService.getAll().then((data) => setEspecialidades(data)).catch(console.error);
 
         const userId = localStorage.getItem('user_id');
         if (!userId) return;
@@ -132,7 +135,7 @@ export default function FinalizarCadastro() {
                         placeholder="Selecione uma especialidade"
                         value={especialidade}
                         onChange={(e) => setEspecialidade(e.target.value)}
-                        options={cargos.map((c) => ({ value: c.nome, label: c.nome }))}
+                        options={especialidades.map((e) => ({ value: e.nome, label: e.nome }))}
                     />
 
                     <Input

@@ -68,6 +68,47 @@
   overflow: hidden;
 }
 
+.searchWrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.searchInput {
+  border: none;
+  outline: none;
+  font-size: 13px;
+  color: #1e293b;
+  font-family: inherit;
+  width: 100%;
+  background: transparent;
+
+  &::placeholder {
+    color: #94a3b8;
+  }
+}
+
+// 5 opções completas (40px cada) + metade da 6ª (20px) = 220px
+.optionsList {
+  max-height: 220px;
+  overflow-y: auto;
+
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #e2e8f0;
+    border-radius: 4px;
+  }
+}
+
 .option {
   padding: 10px 16px;
   font-size: 14px;
@@ -86,4 +127,11 @@
   background-color: #e0f2fe;
   color: #0ea5e9;
   font-weight: 600;
+}
+
+.empty {
+  padding: 10px 16px;
+  font-size: 13px;
+  color: #94a3b8;
+  font-family: inherit;
 }

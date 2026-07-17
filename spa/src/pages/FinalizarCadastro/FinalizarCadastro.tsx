@@ -2,28 +2,37 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card } from '@/src/components/Card/Card';
 import { Input } from '@/src/components/Input/Input';
+import { Select } from '@/src/components/Select/Select';
 import { Button } from '@/src/components/Button/Button';
 import styles from './FinalizarCadastro.module.scss';
 import { authService } from "@/src/service/authService";
+import { cargoService } from "@/src/service/cargoService";
 import { Toast, type ToastType } from "@/src/components/Toast/Toast";
+
+interface Cargo {
+    id: number;
+    nome: string;
+}
 
 export default function FinalizarCadastro() {
     const [nome, setNome] = useState('');
     const [email, setEmail] = useState('');
     const [cargo, setCargo] = useState('');
+    const [cargos, setCargos] = useState<Cargo[]>([]);
     const [registroProfissional, setRegistroProfissional] = useState('');
     const [especialidade, setEspecialidade] = useState('');
     const [cargaHoraria, setCargaHoraria] = useState('');
     const [toast, setToast] = useState<{ message: string, type: ToastType } | null>(null);
-
     const navigate = useNavigate();
 
     useEffect(() => {
+        cargoService.getAll().then((data) => setCargos(data.data ?? data)).catch(console.error);
+
         const userId = localStorage.getItem('user_id');
         if (!userId) return;
 
         authService.getById(Number(userId)).then((data) => {
-            const user = data.data;
+            const user = data.data ?? data;
             if (user.nome) setNome(user.nome);
             if (user.email) setEmail(user.email);
             if (user.cargo) setCargo(user.cargo);
@@ -39,14 +48,7 @@ export default function FinalizarCadastro() {
         const userId = localStorage.getItem('user_id');
         if (!userId) return;
 
-        if (
-            !nome.trim() ||
-            !email.trim() ||
-            !cargo.trim() ||
-            !registroProfissional.trim() ||
-            !especialidade.trim() ||
-            !cargaHoraria.trim()
-        ) {
+        if (!nome.trim() || !email.trim() || !cargo.trim() || !registroProfissional.trim() || !especialidade.trim() || !cargaHoraria.trim()) {
             setToast({ message: 'Preencha todos os campos!', type: 'warning' });
             return;
         }
@@ -82,7 +84,7 @@ export default function FinalizarCadastro() {
 
             <div className={styles.logo}>
                 <span className={styles.logoText}>
-                     Finalize aqui o seu cadastro!
+                    Finalize aqui o seu cadastro!
                 </span>
             </div>
 
@@ -106,31 +108,31 @@ export default function FinalizarCadastro() {
                         onChange={(e) => setEmail(e.target.value)}
                     />
 
-                    <Input
+                    <Select
                         id="cargo"
-                        type="text"
                         label="Cargo ocupado"
-                        placeholder="Médico(a), enfermeiro(a)..."
+                        placeholder="Selecione um cargo"
                         value={cargo}
                         onChange={(e) => setCargo(e.target.value)}
+                        options={cargos.map((c) => ({ value: c.nome, label: c.nome }))}
                     />
 
                     <Input
                         id="registro-profissional"
                         type="text"
-                        label="Registo profissional"
+                        label="Registro profissional"
                         placeholder="CRM-12345"
                         value={registroProfissional}
                         onChange={(e) => setRegistroProfissional(e.target.value)}
                     />
 
-                    <Input
+                    <Select
                         id="especialidade"
-                        type="text"
-                        label="Sua especialidade"
-                        placeholder="Geral, ortopedista..."
+                        label="Especialidade"
+                        placeholder="Selecione uma especialidade"
                         value={especialidade}
                         onChange={(e) => setEspecialidade(e.target.value)}
+                        options={cargos.map((c) => ({ value: c.nome, label: c.nome }))}
                     />
 
                     <Input

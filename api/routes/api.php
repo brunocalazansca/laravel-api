@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CargoController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\PlantaoController;
 use App\Http\Controllers\AuthController;
@@ -11,9 +12,12 @@ Route::get('/test', function () {
 
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/user', [UserController::class, 'store']);
+Route::get('/cargo', [CargoController::class, 'getAll']);
 
 // Rotas protegidas (precisam de token de acesso)
 Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/cargo', [CargoController::class, 'store']);
+
     // --- Rotas do quadro ---
     Route::get('/user/ativos', [UserController::class, 'getAtivos']);
     Route::get('/user/tipo/{tipo}', [UserController::class, 'getPorTipo']);

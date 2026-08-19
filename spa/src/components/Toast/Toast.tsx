@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { MdError, MdCheckCircle, MdWarning } from 'react-icons/md';
 import styles from './Toast.module.scss';
 

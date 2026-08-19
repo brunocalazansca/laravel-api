@@ -28,4 +28,28 @@ class EspecialidadeController extends Controller
 
         return response()->json(['data' => $especialidade], 201);
     }
+
+    public function update(Request $request, int $id)
+    {
+        if ($request->user()->tipo !== 'admin') {
+            return response()->json(['message' => 'Acesso negado.'], 403);
+        }
+
+        $request->validate(['nome' => 'required|string|max:100|unique:especialidades,nome,' . $id]);
+
+        $especialidade = $this->especialidadeService->update($id, $request->only('nome'));
+
+        return response()->json(['data' => $especialidade]);
+    }
+
+    public function destroy(Request $request, int $id)
+    {
+        if ($request->user()->tipo !== 'admin') {
+            return response()->json(['message' => 'Acesso negado.'], 403);
+        }
+
+        $this->especialidadeService->delete($id);
+
+        return response()->json(null, 204);
+    }
 }

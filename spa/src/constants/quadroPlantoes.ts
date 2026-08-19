@@ -1,4 +1,4 @@
-import type { Shift, Day, StaffMember, Role } from "@/src/types/quadroPlantoes";
+import type { Shift, Day, Role } from "@/src/types/quadroPlantoes";
 
 export const SHIFTS: Shift[] = [
   { id: "manha", label: "Manhã",  hours: "07h – 13h", bar: "#F2B84B", tint: "#FDF1DC" },

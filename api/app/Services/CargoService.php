@@ -18,4 +18,14 @@ class CargoService
     {
         return $this->cargoRepository->create($dados);
     }
+
+    public function update(int $id, array $dados): \App\Models\Cargo
+    {
+        return $this->cargoRepository->update($id, $dados);
+    }
+
+    public function delete(int $id): void
+    {
+        $this->cargoRepository->delete($id);
+    }
 }

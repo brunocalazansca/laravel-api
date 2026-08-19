@@ -18,4 +18,14 @@ class EspecialidadeService
     {
         return $this->especialidadeRepository->create($dados);
     }
+
+    public function update(int $id, array $dados): \App\Models\Especialidade
+    {
+        return $this->especialidadeRepository->update($id, $dados);
+    }
+
+    public function delete(int $id): void
+    {
+        $this->especialidadeRepository->delete($id);
+    }
 }

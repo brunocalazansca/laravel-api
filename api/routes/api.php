@@ -19,7 +19,12 @@ Route::get('/especialidade', [EspecialidadeController::class, 'getAll']);
 // Rotas protegidas (precisam de token de acesso)
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/cargo', [CargoController::class, 'store']);
+    Route::put('/cargo/{id}', [CargoController::class, 'update']);
+    Route::delete('/cargo/{id}', [CargoController::class, 'destroy']);
+
     Route::post('/especialidade', [EspecialidadeController::class, 'store']);
+    Route::put('/especialidade/{id}', [EspecialidadeController::class, 'update']);
+    Route::delete('/especialidade/{id}', [EspecialidadeController::class, 'destroy']);
 
     // --- Rotas do quadro ---
     Route::get('/user/ativos', [UserController::class, 'getAtivos']);

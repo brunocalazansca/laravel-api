@@ -16,4 +16,16 @@ class EspecialidadeRepository implements EspecialidadeRepositoryInterface
     {
         return Especialidade::create($dados);
     }
+
+    public function update(int $id, array $dados): Especialidade
+    {
+        $especialidade = Especialidade::findOrFail($id);
+        $especialidade->update($dados);
+        return $especialidade;
+    }
+
+    public function delete(int $id): void
+    {
+        Especialidade::findOrFail($id)->delete();
+    }
 }

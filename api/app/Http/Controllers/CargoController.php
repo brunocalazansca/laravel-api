@@ -27,4 +27,28 @@ class CargoController extends Controller
 
         return response()->json(['data' => $cargo], 201);
     }
+
+    public function update(Request $request, int $id)
+    {
+        if ($request->user()->tipo !== 'admin') {
+            return response()->json(['message' => 'Acesso negado.'], 403);
+        }
+
+        $request->validate(['nome' => 'required|string|max:100|unique:cargos,nome,' . $id]);
+
+        $cargo = $this->cargoService->update($id, $request->only('nome'));
+
+        return response()->json(['data' => $cargo]);
+    }
+
+    public function destroy(Request $request, int $id)
+    {
+        if ($request->user()->tipo !== 'admin') {
+            return response()->json(['message' => 'Acesso negado.'], 403);
+        }
+
+        $this->cargoService->delete($id);
+
+        return response()->json(null, 204);
+    }
 }

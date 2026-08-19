@@ -2,8 +2,8 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import LoginPage from './pages/LoginCadastro/LoginCadastro';
 import FinalizarCadastro from './pages/FinalizarCadastro/FinalizarCadastro';
-import QuadroPlantoes from './pages/QuadroPlantoes/QuadroPlantoes'
-import styles from './App.module.scss';
+import QuadroPlantoes from './pages/QuadroPlantoes/QuadroPlantoes';
+import Admin from './pages/Admin/Admin';
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
     const token = localStorage.getItem('token');
@@ -19,6 +19,7 @@ export default function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/finalizar-cadastro" element={<PrivateRoute><FinalizarCadastro /></PrivateRoute>} />
           <Route path="/plantoes" element={<PrivateRoute><QuadroPlantoes /></PrivateRoute>} />
+          <Route path="/admin" element={<PrivateRoute><Admin /></PrivateRoute>} />
         </Routes>
       </Router>
   );

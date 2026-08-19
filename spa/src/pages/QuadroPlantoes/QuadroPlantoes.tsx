@@ -32,7 +32,7 @@ function cellKey(dayId: string, shiftId: string): string {
   return `${dayId}__${shiftId}`;
 }
 
-export default function QuadroPlantoes(): JSX.Element {
+export default function QuadroPlantoes() {
   const {
     staff,
     emailUsuario,
@@ -73,7 +73,9 @@ export default function QuadroPlantoes(): JSX.Element {
             Quadro
           </button>
           {isAdmin && (
-            <button className={styles.navBtn}>
+            <button className={styles.navBtn}
+              onClick={() => navigate('/admin')}
+            >
               <Shield size={15} />
               Área do Administrador
             </button>

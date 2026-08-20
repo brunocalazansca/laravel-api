@@ -31,6 +31,8 @@ export interface DragOrigin {
 
 export type Assignments = Partial<Record<string, string[]>>;
 
+export type ShiftHoursMap = Record<ShiftId, { hora_inicio: string; hora_fim: string }>;
+
 export interface PlantaoRecord {
   id: number;
   data: string;

@@ -4,6 +4,7 @@ import type { Day } from "@/src/types/quadroPlantoes";
 import { authService } from "@/src/service/authService";
 import { plantaoService } from "@/src/service/plantaoService";
 import { SHIFT_HOURS } from "@/src/constants/quadroPlantoes";
+import type { ShiftHoursMap } from "@/src/types/quadroPlantoes";
 
 function toMonday(date: Date): Date {
     const d = new Date(date);
@@ -70,6 +71,7 @@ export function useQuadroPlantoes() {
     const [hoverCell, setHoverCell] = useState<string | null>(null);
     const [poolHover, setPoolHover] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [shiftHours, setShiftHours] = useState<ShiftHoursMap>({ ...SHIFT_HOURS });
     const [startDate, setStartDate] = useState<Date | null>(() => toMonday(new Date()));
     const [endDate, setEndDate] = useState<Date | null>(() => {
         const d = toMonday(new Date());
@@ -219,7 +221,7 @@ export function useQuadroPlantoes() {
                 }
 
                 const newISO = resolveISO(dayId);
-                const hours = SHIFT_HOURS[shiftId];
+                const hours = shiftHours[shiftId];
                 await plantaoService.create({
                     user_id: Number(staffId),
                     data: newISO,
@@ -297,6 +299,37 @@ export function useQuadroPlantoes() {
         })();
     }
 
+    /* ── Edição de horários dos turnos ──────────────────────────── */
+
+    function timeToMinutes(t: string): number {
+        const [h, m] = t.split(':').map(Number);
+        return h * 60 + m;
+    }
+
+    function shiftDuration(inicio: string, fim: string): number {
+        const a = timeToMinutes(inicio);
+        const b = timeToMinutes(fim);
+        return b > a ? b - a : 1440 - a + b; // cruza meia-noite
+    }
+
+    /**
+     * Atualiza os horários de todos os turnos de uma vez.
+     * Retorna null em caso de sucesso, ou uma string de erro se os turnos não somarem 24h.
+     */
+    function updateAllShiftHours(newHours: import("@/src/types/quadroPlantoes").ShiftHoursMap): string | null {
+        const total = (['manha', 'tarde', 'noite'] as ShiftId[]).reduce(
+            (sum, id) => sum + shiftDuration(newHours[id].hora_inicio, newHours[id].hora_fim),
+            0
+        );
+
+        if (total !== 1440) {
+            return `Os turnos somam ${Math.floor(total / 60)}h${String(total % 60).padStart(2, '0')} — devem somar exatamente 24h00.`;
+        }
+
+        setShiftHours(newHours);
+        return null;
+    }
+
     return {
         staff,
         emailUsuario,
@@ -311,6 +344,7 @@ export function useQuadroPlantoes() {
         startDate,
         endDate,
         loading,
+        shiftHours,
         handleRangeChange,
         setHoverCell,
         setPoolHover,
@@ -319,5 +353,6 @@ export function useQuadroPlantoes() {
         handleDropOnCell,
         handleDropOnPool,
         removeAssignment,
+        updateAllShiftHours,
     };
 }

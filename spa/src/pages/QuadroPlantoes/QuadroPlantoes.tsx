@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Calendar,
@@ -8,7 +8,9 @@ import {
   GripVertical,
   Stethoscope,
   Shield,
+  Pencil,
 } from "lucide-react";
+import type { ShiftId } from "@/src/types/quadroPlantoes";
 
 import {
   SHIFTS,
@@ -18,6 +20,7 @@ import {
 
 import { useQuadroPlantoes } from "@/src/hooks/useQuadroPlantoes";
 import { WeekPicker } from "@/src/components/WeekPicker/WeekPicker";
+import { TimePicker } from "@/src/components/TimePicker/TimePicker";
 import styles from "./QuadroPlantoes.module.scss";
 
 
@@ -44,6 +47,7 @@ export default function QuadroPlantoes() {
     days,
     startDate,
     endDate,
+    shiftHours,
     handleRangeChange,
     setHoverCell,
     setPoolHover,
@@ -52,7 +56,51 @@ export default function QuadroPlantoes() {
     handleDropOnCell,
     handleDropOnPool,
     removeAssignment,
+    updateAllShiftHours,
   } = useQuadroPlantoes();
+
+  /* ── estado do editor de horário ── */
+  const [isEditing, setIsEditing] = useState(false);
+  const [editHours, setEditHours] = useState<import("@/src/types/quadroPlantoes").ShiftHoursMap | null>(null);
+  const [editError, setEditError] = useState<string | null>(null);
+
+  function openEditor() {
+    setEditHours({ ...shiftHours });
+    setEditError(null);
+    setIsEditing(true);
+  }
+
+  function closeEditor() {
+    setIsEditing(false);
+    setEditError(null);
+  }
+
+  function saveEditor() {
+    if (!editHours) return;
+    const err = updateAllShiftHours(editHours);
+    if (err) {
+      setEditError(err);
+    } else {
+      closeEditor();
+    }
+  }
+
+  function handleEditChange(shiftId: ShiftId, field: 'hora_inicio' | 'hora_fim', value: string) {
+    if (!editHours) return;
+    setEditHours({
+      ...editHours,
+      [shiftId]: {
+        ...editHours[shiftId],
+        [field]: value
+      }
+    });
+  }
+
+  function formatShiftDisplay(shiftId: ShiftId): string {
+    const h = shiftHours[shiftId];
+    const fmt = (t: string) => t.replace(':', 'h');
+    return `${fmt(h.hora_inicio)} – ${fmt(h.hora_fim)}`;
+  }
 
   const navigate = useNavigate();
 
@@ -74,6 +122,7 @@ export default function QuadroPlantoes() {
             <LayoutGrid size={15} />
             Quadro
           </button>
+          
           {isAdmin && (
             <button className={styles.navBtn}
               onClick={() => navigate('/admin')}
@@ -82,6 +131,11 @@ export default function QuadroPlantoes() {
               Área do Administrador
             </button>
           )}
+
+          <button className={styles.navBtn} onClick={openEditor}>
+            <Pencil size={15} />
+            Horários
+          </button>
         </div>
         <div className={styles.navRight}>
           <div className={styles.userInfo}>
@@ -105,39 +159,47 @@ export default function QuadroPlantoes() {
             <p className={styles.subtitle}>Escala semanal — arraste um funcionário para qualquer turno</p>
           </div>
 
-          <WeekPicker startDate={startDate} endDate={endDate} onChange={handleRangeChange} />
+          <div className={styles.headerActions}>
+            <WeekPicker startDate={startDate} endDate={endDate} onChange={handleRangeChange} />
+          </div>
         </div>
 
         <div className={styles.tableWrap}>
           <div className={styles.grid}>
-            <div className={`${styles.colHeader} ${styles.shiftHeaderCell}`}>
+            <div className={`${styles.colHeader} ${styles.shiftHeaderCell} ${styles.topLeftCell}`}>
               <span className={styles.turnoBadge}>TURNO</span>
             </div>
-            {days.map((d) => (
-              <div key={d.id} className={styles.colHeader}>
+            {days.map((d, idx) => (
+              <div key={d.id} className={`${styles.colHeader} ${idx === days.length - 1 ? styles.topRightCell : ''}`}>
                 <div className={`${styles.dayLabel} ${d.isToday ? styles.today : ""}`}>{d.label}</div>
                 <div className={`${styles.dayDate} ${d.isToday ? styles.today : ""}`}>{d.date}</div>
               </div>
             ))}
 
-            {SHIFTS.map((shift) => (
+            {SHIFTS.map((shift, sIndex) => {
+              const isLastRow = sIndex === SHIFTS.length - 1;
+              return (
               <React.Fragment key={shift.id}>
-                <div className={styles.shiftLabel} style={{ backgroundColor: shift.tint }}>
+                <div className={`${styles.shiftLabel} ${isLastRow ? styles.bottomLeftCell : ''}`} style={{ backgroundColor: shift.tint }}>
                   <div className={styles.shiftDot}>
                     <span style={{ backgroundColor: shift.bar }} />
                     <span>{shift.label}</span>
                   </div>
-                  <div className={styles.shiftHours}>{shift.hours}</div>
+                  <div className={styles.shiftHoursWrap}>
+                    <span className={styles.shiftHours}>
+                      {formatShiftDisplay(shift.id)}
+                    </span>
+                  </div>
                 </div>
 
-                {days.map((d) => {
+                {days.map((d, dIndex) => {
                   const key = cellKey(d.id, shift.id);
                   const ids = assignments[key] || [];
                   const isHover = hoverCell === key;
                   return (
                     <div
                       key={key}
-                      className={styles.cell}
+                      className={`${styles.cell} ${isHover ? styles.cellHover : ""} ${isLastRow && dIndex === days.length - 1 ? styles.bottomRightCell : ''}`}
                       onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = "move"; setHoverCell(key); }}
                       onDragLeave={() => setHoverCell((h) => (h === key ? null : h))}
                       onDrop={(e) => handleDropOnCell(e, d.id, shift.id)}
@@ -179,7 +241,8 @@ export default function QuadroPlantoes() {
                   );
                 })}
               </React.Fragment>
-            ))}
+              );
+            })}
           </div>
         </div>
 
@@ -223,6 +286,54 @@ export default function QuadroPlantoes() {
           )}
         </div>
       </div>
+
+      {isEditing && editHours && (
+        <div className={styles.modalOverlay} onClick={closeEditor}>
+          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.modalHeader}>
+              <h2 className={styles.modalTitle}>Editar horários dos turnos</h2>
+              <button className={styles.modalClose} onClick={closeEditor}>
+                <X size={18} />
+              </button>
+            </div>
+            <div className={styles.modalBody}>
+              <p className={styles.modalSubtitle}>Os 3 turnos devem somar exatamente 24 horas.</p>
+              
+              {SHIFTS.map((shift) => (
+                <div key={shift.id} className={styles.modalRow}>
+                  <div className={styles.modalRowLabel}>
+                    <span className={styles.modalRowDot} style={{ backgroundColor: shift.bar }} />
+                    {shift.label}
+                  </div>
+                  <div className={styles.modalRowInputs}>
+                    <div className={styles.modalInputGroup}>
+                      <label>Início</label>
+                      <TimePicker 
+                        value={editHours[shift.id].hora_inicio} 
+                        onChange={(val) => handleEditChange(shift.id, 'hora_inicio', val)} 
+                      />
+                    </div>
+                    <div className={styles.modalInputGroup}>
+                      <label>Fim</label>
+                      <TimePicker 
+                        value={editHours[shift.id].hora_fim} 
+                        onChange={(val) => handleEditChange(shift.id, 'hora_fim', val)} 
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
+
+              {editError && <div className={styles.shiftEditorError}>{editError}</div>}
+            </div>
+            
+            <div className={styles.modalFooter}>
+              <button className={styles.shiftEditorCancel} onClick={closeEditor}>Cancelar</button>
+              <button className={styles.shiftEditorSave} onClick={saveEditor}>Salvar alterações</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

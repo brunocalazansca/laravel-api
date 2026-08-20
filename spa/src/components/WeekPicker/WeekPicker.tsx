@@ -43,8 +43,10 @@ function getDaysInMonth(year: number, month: number): Date[] {
     const days: Date[] = [];
     const first = new Date(year, month, 1);
     const last = new Date(year, month + 1, 0);
-    for (let i = 0; i < (first.getDay() === 0 ? 6 : first.getDay() - 1); i++) {
-        days.push(addDays(first, -((first.getDay() === 0 ? 6 : first.getDay() - 1) - i)));
+    
+    // Sunday is 0, so first.getDay() directly maps to the number of offset days we need.
+    for (let i = 0; i < first.getDay(); i++) {
+        days.push(addDays(first, -(first.getDay() - i)));
     }
     for (let d = 1; d <= last.getDate(); d++) days.push(new Date(year, month, d));
     while (days.length % 7 !== 0) days.push(addDays(days[days.length - 1], 1));
@@ -52,7 +54,7 @@ function getDaysInMonth(year: number, month: number): Date[] {
 }
 
 const MONTH_NAMES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
-const WEEK_DAYS = ['Seg','Ter','Qua','Qui','Sex','Sáb','Dom'];
+const WEEK_DAYS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 
 export function WeekPicker({ startDate, endDate, onChange }: WeekPickerProps) {
     const today = startOfDay(new Date());
@@ -68,7 +70,6 @@ export function WeekPicker({ startDate, endDate, onChange }: WeekPickerProps) {
         function onClickOutside(e: MouseEvent) {
             if (ref.current && !ref.current.contains(e.target as Node)) {
                 setOpen(false);
-                setSelecting(null);
             }
         }
         document.addEventListener('mousedown', onClickOutside);
@@ -87,10 +88,19 @@ export function WeekPicker({ startDate, endDate, onChange }: WeekPickerProps) {
         );
     }
 
+    function handleDayHover(day: Date) {
+        const diff = day.getDay();
+        setHoverDate(addDays(day, -diff));
+    }
+
     function handleDayClick(day: Date) {
-        const d = startOfDay(day);
-        onChange(d, addDays(d, 6));
+        // Start week on Sunday
+        const diff = day.getDay();
+        const weekStart = addDays(day, -diff);
+        const weekEnd = addDays(weekStart, 6);
+        onChange(weekStart, weekEnd);
         setOpen(false);
+        setHoverDate(null);
     }
 
     function getDayClass(day: Date): string {
@@ -133,7 +143,9 @@ export function WeekPicker({ startDate, endDate, onChange }: WeekPickerProps) {
                     <ChevronRight size={16} />
                 </button>
                 <button className={styles.todayBtn} onClick={() => {
-                    onChange(today, addDays(today, 6));
+                    const diff = today.getDay();
+                    const weekStart = addDays(today, -diff);
+                    onChange(weekStart, addDays(weekStart, 6));
                     setOpen(false);
                 }}>Hoje</button>
             </div>
@@ -156,7 +168,7 @@ export function WeekPicker({ startDate, endDate, onChange }: WeekPickerProps) {
                                 key={i}
                                 className={getDayClass(day)}
                                 onClick={() => handleDayClick(day)}
-                                onMouseEnter={() => setHoverDate(startOfDay(day))}
+                                onMouseEnter={() => handleDayHover(day)}
                                 onMouseLeave={() => setHoverDate(null)}
                             >
                                 {day.getDate()}

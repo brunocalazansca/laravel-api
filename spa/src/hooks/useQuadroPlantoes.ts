@@ -6,10 +6,10 @@ import { plantaoService } from "@/src/service/plantaoService";
 import { SHIFT_HOURS } from "@/src/constants/quadroPlantoes";
 import type { ShiftHoursMap } from "@/src/types/quadroPlantoes";
 
-function toMonday(date: Date): Date {
+function toSunday(date: Date): Date {
     const d = new Date(date);
     const day = d.getDay();
-    const diff = day === 0 ? -6 : 1 - day;
+    const diff = -day;
     d.setDate(d.getDate() + diff);
     d.setHours(0, 0, 0, 0);
     return d;
@@ -72,9 +72,9 @@ export function useQuadroPlantoes() {
     const [poolHover, setPoolHover] = useState(false);
     const [loading, setLoading] = useState(false);
     const [shiftHours, setShiftHours] = useState<ShiftHoursMap>({ ...SHIFT_HOURS });
-    const [startDate, setStartDate] = useState<Date | null>(() => toMonday(new Date()));
-    const [endDate, setEndDate] = useState<Date | null>(() => {
-        const d = toMonday(new Date());
+    const [startDate, setStartDate] = useState<Date>(() => toSunday(new Date()));
+    const [endDate, setEndDate] = useState<Date>(() => {
+        const d = toSunday(new Date());
         d.setDate(d.getDate() + 6);
         return d;
     });

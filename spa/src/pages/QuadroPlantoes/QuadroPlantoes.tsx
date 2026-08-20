@@ -2,8 +2,6 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Calendar,
-  ChevronLeft,
-  ChevronRight,
   LogOut,
   LayoutGrid,
   X,
@@ -14,12 +12,12 @@ import {
 
 import {
   SHIFTS,
-  DAYS,
   ROLE_COLORS,
   DEFAULT_ROLE_COLOR,
 } from "@/src/constants/quadroPlantoes";
 
 import { useQuadroPlantoes } from "@/src/hooks/useQuadroPlantoes";
+import { WeekPicker } from "@/src/components/WeekPicker/WeekPicker";
 import styles from "./QuadroPlantoes.module.scss";
 
 
@@ -43,6 +41,10 @@ export default function QuadroPlantoes() {
     poolHover,
     poolStaff,
     staffById,
+    days,
+    startDate,
+    endDate,
+    handleRangeChange,
     setHoverCell,
     setPoolHover,
     handleDragStart,
@@ -103,12 +105,7 @@ export default function QuadroPlantoes() {
             <p className={styles.subtitle}>Escala semanal — arraste um funcionário para qualquer turno</p>
           </div>
 
-          <div className={styles.weekNav}>
-            <button className={styles.weekNavBtn}><ChevronLeft size={16} /></button>
-            <span className={styles.weekLabel}>29 de jun. – 05 de jul.</span>
-            <button className={styles.weekNavBtn}><ChevronRight size={16} /></button>
-            <button className={styles.todayBtn}>Hoje</button>
-          </div>
+          <WeekPicker startDate={startDate} endDate={endDate} onChange={handleRangeChange} />
         </div>
 
         <div className={styles.tableWrap}>
@@ -116,7 +113,7 @@ export default function QuadroPlantoes() {
             <div className={`${styles.colHeader} ${styles.shiftHeaderCell}`}>
               <span className={styles.turnoBadge}>TURNO</span>
             </div>
-            {DAYS.map((d) => (
+            {days.map((d) => (
               <div key={d.id} className={styles.colHeader}>
                 <div className={`${styles.dayLabel} ${d.isToday ? styles.today : ""}`}>{d.label}</div>
                 <div className={`${styles.dayDate} ${d.isToday ? styles.today : ""}`}>{d.date}</div>
@@ -133,7 +130,7 @@ export default function QuadroPlantoes() {
                   <div className={styles.shiftHours}>{shift.hours}</div>
                 </div>
 
-                {DAYS.map((d) => {
+                {days.map((d) => {
                   const key = cellKey(d.id, shift.id);
                   const ids = assignments[key] || [];
                   const isHover = hoverCell === key;
@@ -168,7 +165,10 @@ export default function QuadroPlantoes() {
                           >
                             <GripVertical size={12} color="rgba(255,255,255,0.6)" />
                             <span className={styles.chipAvatar}>{initials(person.name)}</span>
-                            <span className={styles.chipName}>{person.name}</span>
+                            <div className={styles.chipInfo}>
+                              <span className={styles.chipName}>{person.name}</span>
+                              <span className={styles.chipRole}>{person.role}</span>
+                            </div>
                             <button className={styles.chipRemove} onClick={() => removeAssignment(d.id, shift.id, id)}>
                               <X size={12} />
                             </button>

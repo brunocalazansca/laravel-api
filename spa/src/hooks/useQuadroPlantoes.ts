@@ -1,6 +1,39 @@
 import React, { useState, useEffect } from "react";
 import type { DayId, ShiftId, DragOrigin, Assignments, StaffMember } from "@/src/types/quadroPlantoes";
+import type { Day } from "@/src/types/quadroPlantoes";
 import { authService } from "@/src/service/authService";
+
+function toMonday(date: Date): Date {
+    const d = new Date(date);
+    const day = d.getDay();
+    const diff = day === 0 ? -6 : 1 - day;
+    d.setDate(d.getDate() + diff);
+    d.setHours(0, 0, 0, 0);
+    return d;
+}
+
+function buildDays(startDate: Date, endDate: Date): Day[] {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const LABEL_MAP = ["DOM", "SEG", "TER", "QUA", "QUI", "SEX", "SÁB"];
+    const ID_MAP: DayId[] = ["dom", "seg", "ter", "qua", "qui", "sex", "sab"];
+    const days: Day[] = [];
+    const cur = new Date(startDate);
+    cur.setHours(0, 0, 0, 0);
+    const end = new Date(endDate);
+    end.setHours(0, 0, 0, 0);
+    while (cur <= end) {
+        const dow = cur.getDay();
+        days.push({
+            id: ID_MAP[dow],
+            label: LABEL_MAP[dow],
+            date: cur.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
+            isToday: cur.getTime() === today.getTime(),
+        });
+        cur.setDate(cur.getDate() + 1);
+    }
+    return days;
+}
 
 function cellKey(dayId: DayId, shiftId: ShiftId): string {
   return `${dayId}__${shiftId}`;
@@ -15,6 +48,19 @@ export function useQuadroPlantoes() {
   const [dragOrigin, setDragOrigin] = useState<DragOrigin | null>(null);
   const [hoverCell, setHoverCell] = useState<string | null>(null);
   const [poolHover, setPoolHover] = useState(false);
+  const [startDate, setStartDate] = useState<Date | null>(() => toMonday(new Date()));
+  const [endDate, setEndDate] = useState<Date | null>(() => {
+    const d = toMonday(new Date());
+    d.setDate(d.getDate() + 6);
+    return d;
+  });
+
+  function handleRangeChange(start: Date, end: Date) {
+    setStartDate(start);
+    setEndDate(end);
+  }
+
+  const days = startDate && endDate ? buildDays(startDate, endDate) : [];
 
   useEffect(() => {
     const userId = localStorage.getItem('user_id');
@@ -103,6 +149,10 @@ export function useQuadroPlantoes() {
     poolHover,
     poolStaff,
     staffById,
+    days,
+    startDate,
+    endDate,
+    handleRangeChange,
     setHoverCell,
     setPoolHover,
     handleDragStart,

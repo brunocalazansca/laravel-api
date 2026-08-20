@@ -15,6 +15,7 @@ export interface Day {
   label: string;
   date: string;
   isToday?: boolean;
+  _iso?: string;
 }
 
 export interface StaffMember {
@@ -29,3 +30,13 @@ export interface DragOrigin {
 }
 
 export type Assignments = Partial<Record<string, string[]>>;
+
+export interface PlantaoRecord {
+  id: number;
+  data: string;
+  hora_inicio: string;
+  hora_fim: string;
+  setor: string;
+  status: string;
+  medico: { id: number; nome: string; cargo: string };
+}

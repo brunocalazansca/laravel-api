@@ -23,3 +23,9 @@ export const ROLE_COLORS: Record<Role, { bg: string }> = {
 };
 
 export const DEFAULT_ROLE_COLOR = { bg: "#94A3B8" };
+
+export const SHIFT_HOURS: Record<import("@/src/types/quadroPlantoes").ShiftId, { hora_inicio: string; hora_fim: string }> = {
+  manha: { hora_inicio: "07:00", hora_fim: "13:00" },
+  tarde: { hora_inicio: "13:00", hora_fim: "19:00" },
+  noite: { hora_inicio: "19:00", hora_fim: "07:00" },
+};

@@ -15,4 +15,5 @@ interface PlantaoRepositoryInterface
     public function existeChoqueHorario(int $userId, string $data, string $horaInicio, string $horaFim): bool;
     public function getPorPeriodo(string $dataInicio, string $dataFim): Collection;
     public function getPorUsuario(int $userId): Collection;
+    public function deleteByUserDataSetor(int $userId, string $data, string $setor): bool;
 }

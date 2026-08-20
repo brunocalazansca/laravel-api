@@ -111,4 +111,25 @@ class PlantaoController extends Controller
 
         return PlantaoResource::collection($plantoes);
     }
+
+    public function deleteByMatch(Request $request)
+    {
+        $userId = $request->query('user_id');
+        $data = $request->query('data');
+        $setor = $request->query('setor');
+
+        if (!$userId || !$data || !$setor) {
+            return response()->json([
+                'message' => 'Os parâmetros user_id, data e setor são obrigatórios.'
+            ], 400);
+        }
+
+        $deleted = $this->plantaoService->deleteByUserDataSetor((int) $userId, $data, $setor);
+
+        if (!$deleted) {
+            return response()->json(['message' => 'Plantão não encontrado.'], 404);
+        }
+
+        return response()->json(['message' => 'Plantão removido com sucesso.']);
+    }
 }

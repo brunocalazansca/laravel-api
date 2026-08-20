@@ -68,4 +68,12 @@ class PlantaoRepository implements PlantaoRepositoryInterface
             ->orderBy('hora_inicio', 'desc')
             ->get();
     }
+
+    public function deleteByUserDataSetor(int $userId, string $data, string $setor): bool
+    {
+        return Plantao::where('user_id', $userId)
+            ->where('data', $data)
+            ->where('setor', $setor)
+            ->delete() > 0;
+    }
 }

@@ -19,7 +19,7 @@ class StorePlantaoRequest extends FormRequest
             'user_id' => 'required|integer|exists:users,id',
             'data' => 'required|date_format:Y-m-d',
             'hora_inicio' => 'required|date_format:H:i',
-            'hora_fim' => 'required|date_format:H:i|after:hora_inicio',
+            'hora_fim' => 'required|date_format:H:i',
             'setor' => 'required|string|max:100',
             'status' => 'nullable|string|in:agendado,concluido,cancelado,troca_solicitada',
         ];

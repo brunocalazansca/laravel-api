@@ -44,5 +44,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/plantao/usuario/{userId}', [PlantaoController::class, 'getPorUsuario']);
     Route::get('/plantao/{id}', [PlantaoController::class, 'getById']);
     Route::put('/plantao/{id}', [PlantaoController::class, 'update']);
-    Route::delete('/plantao/{id}', [PlantaoController::class, 'delete']);
+    Route::delete('/plantao/match', [PlantaoController::class, 'deleteByMatch']);
+    Route::delete('/plantao/{id}', [PlantaoController::class, 'delete'])->whereNumber('id');
 });

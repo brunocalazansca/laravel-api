@@ -80,4 +80,9 @@ class PlantaoService
     {
         return $this->plantaoRepository->getPorUsuario($userId);
     }
+
+    public function deleteByUserDataSetor(int $userId, string $data, string $setor): bool
+    {
+        return $this->plantaoRepository->deleteByUserDataSetor($userId, $data, $setor);
+    }
 }

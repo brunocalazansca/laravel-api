@@ -19,7 +19,7 @@ class UpdatePlantaoRequest extends FormRequest
             'user_id' => 'sometimes|required|integer|exists:users,id',
             'data' => 'sometimes|required|date_format:Y-m-d',
             'hora_inicio' => 'sometimes|required|date_format:H:i',
-            'hora_fim' => 'sometimes|required|date_format:H:i|after:hora_inicio',
+            'hora_fim' => 'sometimes|required|date_format:H:i',
             'setor' => 'sometimes|required|string|max:100',
             'status' => 'sometimes|required|string|in:agendado,concluido,cancelado,troca_solicitada',
         ];

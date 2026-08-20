@@ -4,6 +4,7 @@ use App\Http\Controllers\CargoController;
 use App\Http\Controllers\EspecialidadeController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\PlantaoController;
+use App\Http\Controllers\ConfiguracaoController;
 use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Route;
 
@@ -36,6 +37,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user/{id}', [UserController::class, 'getById']);
     Route::delete('/user/{id}', [UserController::class, 'delete']);
     Route::put('/user/{id}', [UserController::class, 'update']);
+
+    // --- Configurações ---
+    Route::get('/configuracao/shift-hours', [ConfiguracaoController::class, 'getShiftHours']);
+    Route::put('/configuracao/shift-hours', [ConfiguracaoController::class, 'updateShiftHours']);
 
     // Rotas de plantões
     Route::post('/plantao', [PlantaoController::class, 'createPlantao']);

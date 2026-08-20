@@ -432,7 +432,12 @@
     cursor: pointer;
     transition: background .15s;
 
-    &:hover { background: #0D8590; }
+    &:hover:not(:disabled) { background: #0D8590; }
+
+    &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
 }
 
 .shiftEditorCancel {

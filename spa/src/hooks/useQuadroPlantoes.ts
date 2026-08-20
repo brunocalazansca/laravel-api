@@ -3,6 +3,7 @@ import type { DayId, ShiftId, DragOrigin, Assignments, StaffMember } from "@/src
 import type { Day } from "@/src/types/quadroPlantoes";
 import { authService } from "@/src/service/authService";
 import { plantaoService } from "@/src/service/plantaoService";
+import { configuracaoService } from "@/src/service/configuracaoService";
 import { SHIFT_HOURS } from "@/src/constants/quadroPlantoes";
 import type { ShiftHoursMap } from "@/src/types/quadroPlantoes";
 
@@ -71,6 +72,7 @@ export function useQuadroPlantoes() {
     const [hoverCell, setHoverCell] = useState<string | null>(null);
     const [poolHover, setPoolHover] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [configLoading, setConfigLoading] = useState(true);
     const [shiftHours, setShiftHours] = useState<ShiftHoursMap>({ ...SHIFT_HOURS });
     const [startDate, setStartDate] = useState<Date>(() => toSunday(new Date()));
     const [endDate, setEndDate] = useState<Date>(() => {
@@ -156,10 +158,27 @@ export function useQuadroPlantoes() {
     }, []);
 
     useEffect(() => {
+        carregarConfiguracoes();
+    }, []);
+
+    useEffect(() => {
         if (startDate && endDate) {
             loadPlantoes(formatISO(startDate), formatISO(endDate));
         }
     }, [startDate, endDate, loadPlantoes]);
+
+    async function carregarConfiguracoes() {
+        try {
+            const remoteHours = await configuracaoService.getShiftHours();
+            if (remoteHours && remoteHours.manha && remoteHours.tarde && remoteHours.noite) {
+                setShiftHours(remoteHours);
+            }
+        } catch (e) {
+            console.error("Erro ao carregar horários configurados", e);
+        } finally {
+            setConfigLoading(false);
+        }
+    }
 
     const assignedIds = new Set(Object.values(assignments).flatMap((a) => a ?? []));
     const poolStaff = staff.filter((p) => !assignedIds.has(p.id));
@@ -316,7 +335,7 @@ export function useQuadroPlantoes() {
      * Atualiza os horários de todos os turnos de uma vez.
      * Retorna null em caso de sucesso, ou uma string de erro se os turnos não somarem 24h.
      */
-    function updateAllShiftHours(newHours: import("@/src/types/quadroPlantoes").ShiftHoursMap): string | null {
+    async function updateAllShiftHours(newHours: import("@/src/types/quadroPlantoes").ShiftHoursMap): Promise<string | null> {
         const total = (['manha', 'tarde', 'noite'] as ShiftId[]).reduce(
             (sum, id) => sum + shiftDuration(newHours[id].hora_inicio, newHours[id].hora_fim),
             0
@@ -326,8 +345,17 @@ export function useQuadroPlantoes() {
             return `Os turnos somam ${Math.floor(total / 60)}h${String(total % 60).padStart(2, '0')} — devem somar exatamente 24h00.`;
         }
 
-        setShiftHours(newHours);
-        return null;
+        try {
+            setLoading(true);
+            const saved = await configuracaoService.updateShiftHours(newHours);
+            setShiftHours(saved);
+            return null;
+        } catch (e) {
+            console.error(e);
+            return "Erro ao salvar horários no servidor.";
+        } finally {
+            setLoading(false);
+        }
     }
 
     return {
@@ -354,5 +382,6 @@ export function useQuadroPlantoes() {
         handleDropOnPool,
         removeAssignment,
         updateAllShiftHours,
+        configLoading,
     };
 }

@@ -16,6 +16,7 @@ import {
   SHIFTS,
   ROLE_COLORS,
   DEFAULT_ROLE_COLOR,
+  SHIFT_HOURS,
 } from "@/src/constants/quadroPlantoes";
 
 import { useQuadroPlantoes } from "@/src/hooks/useQuadroPlantoes";
@@ -57,6 +58,8 @@ export default function QuadroPlantoes() {
     handleDropOnPool,
     removeAssignment,
     updateAllShiftHours,
+    configLoading,
+    loading,
   } = useQuadroPlantoes();
 
   /* ── estado do editor de horário ── */
@@ -65,7 +68,11 @@ export default function QuadroPlantoes() {
   const [editError, setEditError] = useState<string | null>(null);
 
   function openEditor() {
-    setEditHours({ ...shiftHours });
+    setEditHours({ 
+      manha: shiftHours?.manha || SHIFT_HOURS.manha,
+      tarde: shiftHours?.tarde || SHIFT_HOURS.tarde,
+      noite: shiftHours?.noite || SHIFT_HOURS.noite 
+    });
     setEditError(null);
     setIsEditing(true);
   }
@@ -75,9 +82,9 @@ export default function QuadroPlantoes() {
     setEditError(null);
   }
 
-  function saveEditor() {
+  async function saveEditor() {
     if (!editHours) return;
-    const err = updateAllShiftHours(editHours);
+    const err = await updateAllShiftHours(editHours);
     if (err) {
       setEditError(err);
     } else {
@@ -97,7 +104,8 @@ export default function QuadroPlantoes() {
   }
 
   function formatShiftDisplay(shiftId: ShiftId): string {
-    const h = shiftHours[shiftId];
+    const h = shiftHours?.[shiftId] || SHIFT_HOURS[shiftId];
+    if (!h) return '';
     const fmt = (t: string) => t.replace(':', 'h');
     return `${fmt(h.hora_inicio)} – ${fmt(h.hora_fim)}`;
   }
@@ -165,6 +173,11 @@ export default function QuadroPlantoes() {
         </div>
 
         <div className={styles.tableWrap}>
+          {configLoading ? (
+            <div style={{ padding: '2rem', textAlign: 'center', color: '#666' }}>
+              Carregando configurações...
+            </div>
+          ) : (
           <div className={styles.grid}>
             <div className={`${styles.colHeader} ${styles.shiftHeaderCell} ${styles.topLeftCell}`}>
               <span className={styles.turnoBadge}>TURNO</span>
@@ -244,6 +257,7 @@ export default function QuadroPlantoes() {
               );
             })}
           </div>
+          )}
         </div>
 
         <div
@@ -328,8 +342,10 @@ export default function QuadroPlantoes() {
             </div>
             
             <div className={styles.modalFooter}>
-              <button className={styles.shiftEditorCancel} onClick={closeEditor}>Cancelar</button>
-              <button className={styles.shiftEditorSave} onClick={saveEditor}>Salvar alterações</button>
+              <button className={styles.shiftEditorCancel} onClick={closeEditor} disabled={loading}>Cancelar</button>
+              <button className={styles.shiftEditorSave} onClick={saveEditor} disabled={loading}>
+                {loading ? 'Salvando...' : 'Salvar alterações'}
+              </button>
             </div>
           </div>
         </div>

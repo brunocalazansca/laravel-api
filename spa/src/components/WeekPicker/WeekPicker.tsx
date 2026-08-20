@@ -58,7 +58,6 @@ export function WeekPicker({ startDate, endDate, onChange }: WeekPickerProps) {
     const today = startOfDay(new Date());
     const [open, setOpen] = useState(false);
     const [hoverDate, setHoverDate] = useState<Date | null>(null);
-    const [selecting, setSelecting] = useState<Date | null>(null);
     const [viewMonth, setViewMonth] = useState(() => {
         const d = startDate ?? today;
         return { year: d.getFullYear(), month: d.getMonth() };
@@ -90,14 +89,8 @@ export function WeekPicker({ startDate, endDate, onChange }: WeekPickerProps) {
 
     function handleDayClick(day: Date) {
         const d = startOfDay(day);
-        if (!selecting) {
-            setSelecting(d);
-        } else {
-            const [s, e] = d < selecting ? [d, selecting] : [selecting, d];
-            onChange(s, e);
-            setSelecting(null);
-            setOpen(false);
-        }
+        onChange(d, addDays(d, 6));
+        setOpen(false);
     }
 
     function getDayClass(day: Date): string {
@@ -106,15 +99,12 @@ export function WeekPicker({ startDate, endDate, onChange }: WeekPickerProps) {
         if (!isCurrentMonth) classes.push(styles.dayOtherMonth);
         if (sameDay(day, today)) classes.push(styles.dayToday);
 
-        const rangeStart = selecting ?? startDate;
-        const rangeEnd = selecting ? (hoverDate ?? null) : endDate;
+        const rangeStart = hoverDate ?? startDate;
+        const rangeEnd = rangeStart ? addDays(rangeStart, 6) : endDate;
 
         if (rangeStart && sameDay(day, rangeStart)) classes.push(styles.dayRangeStart);
         if (rangeEnd && sameDay(day, rangeEnd)) classes.push(styles.dayRangeEnd);
-        if (rangeStart && rangeEnd) {
-            const [s, e] = rangeStart < rangeEnd ? [rangeStart, rangeEnd] : [rangeEnd, rangeStart];
-            if (isBetween(day, s, e)) classes.push(styles.dayInRange);
-        }
+        if (rangeStart && rangeEnd && isBetween(day, rangeStart, rangeEnd)) classes.push(styles.dayInRange);
 
         return classes.join(' ');
     }
@@ -166,17 +156,13 @@ export function WeekPicker({ startDate, endDate, onChange }: WeekPickerProps) {
                                 key={i}
                                 className={getDayClass(day)}
                                 onClick={() => handleDayClick(day)}
-                                onMouseEnter={() => selecting && setHoverDate(startOfDay(day))}
+                                onMouseEnter={() => setHoverDate(startOfDay(day))}
                                 onMouseLeave={() => setHoverDate(null)}
                             >
                                 {day.getDate()}
                             </button>
                         ))}
                     </div>
-
-                    {selecting && (
-                        <p className={styles.hint}>Selecione a data final</p>
-                    )}
                 </div>
             )}
         </div>
